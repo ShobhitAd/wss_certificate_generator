@@ -14,7 +14,7 @@ pip3 install pexpect
 ```
 ## How to use
 
-###General format
+### General format
 > ./gen_certs.py <_host_ip_address_> [**-flag** _value_|**-flag**]
 
 1. `./gen_certs.py <host_ip_address>`  
