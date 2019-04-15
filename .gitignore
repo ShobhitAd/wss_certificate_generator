@@ -3,3 +3,6 @@
 *.p12
 *.jks
 *.csr
+*.srl
+*.pyc
+__pycache__/

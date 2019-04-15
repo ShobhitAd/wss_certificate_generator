@@ -29,6 +29,21 @@ class CertCommands():
     gen_process.communicate(input=bytes(gen_input, 'utf-8'))
     gen_process.wait()
 
+  def gen_signing_request(self, key_file, sign_req_file, inputs):
+    self.check_inputs('GENERATE SIGNING REQUEST', inputs, required=['ip'])
+    # openssl req -new -key [KEY] -out [SIGNING_REQUEST]
+    gen_command = "openssl req -new -key %s -out %s" % (key_file, sign_req_file)
+    gen_process = subprocess.Popen(gen_command.split(' '), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    gen_input='.\n.\n.\n.\n.\n%s\n.\n\n\n' % inputs['ip']
+    gen_process.communicate(input=bytes(gen_input, 'utf-8'))
+    gen_process.wait()
+
+  def gen_CA_signed_cert(self, ca_key_file, ca_cert_file, sign_req_file, cert_file):
+    #openssl x509 -req -in [SIGNING_REQUEST] -CA [CA_CERTIFICATE] -CAkey [CA_KEY] -CAcreateserial -out [CERTIFICATE] -days 500 -sha256
+    gen_command = "openssl x509 -req -in %s -CA %s -CAkey %s -CAcreateserial -out %s -days 500 -sha256" \
+      % (sign_req_file, ca_cert_file, ca_key_file, cert_file)
+    subprocess.call(gen_command.split(' '), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+
   def gen_keystore(self, key_file, cert_file, keystore_file, inputs):
     self.check_inputs('GENERATE KEYSTORE', inputs, required=['keystore_password'])
     #openssl pkcs12 -export -out [KEYSTORE] -inkey [KEY] -in [CERT]
@@ -64,7 +79,10 @@ class CertManager():
           'key' : 'privatekey.key',
           'cert' : 'cert.pem',
           'keystore': 'keystore.p12',
-          'jks': 'jkeystore.jks'
+          'jks': 'jkeystore.jks',
+          'ca_key': 'CAkey.key',
+          'ca_cert': 'CAcert.pem',
+          'sign_req' : 'signRequest.csr' 
         }
         
     def generate(self):
@@ -80,8 +98,15 @@ class CertManager():
             print('Why are you here')
             exit(0)
         
-        self.gen_key_and_cert()
-        self.gen_cert()
+        if 'CA' in self.PARAMS:
+          self.gen_CA_key_and_cert()
+          self.gen_CA_cert()
+          self.gen_Server_key()
+          self.gen_Server_cert_signing_request()
+          self.gen_Server_cert()
+        else:
+          self.gen_key_and_cert()
+          self.gen_cert()
         self.gen_keystore()
         self.gen_jks()
 
@@ -133,6 +158,68 @@ class CertManager():
         self.COMMANDS.gen_jks(self.PARAMS['keystore'], self.DEFAULT_FILENAMES['jks'], {'keystore_password': self.KEYSTORE_PASSWORD, 'jks_password': self.JKS_PASSWORD} )
 
         self.PARAMS['jks'] = self.DEFAULT_FILENAMES['jks']
+
+### CA methods
+    def gen_CA_cert(self):
+        if self.some_req('keystore', 'ca_cert', 'cert'):
+            return
+        if not self.all_req('ip', 'ca_key'):
+            print('Missing required parameters')     
+            exit(1)   
+
+        print('Generating CA cert based on CA private key')
+        self.COMMANDS.gen_cert(self.PARAMS['ca_key'], self.DEFAULT_FILENAMES['ca_cert'], {'ip': self.PARAMS['ip'] + ' CA'} )
+
+        self.PARAMS['ca_cert'] = self.DEFAULT_FILENAMES['ca_cert']
+
+    def gen_CA_key_and_cert(self):
+        if self.some_req('keystore', 'ca_key', 'ca_cert', 'cert'):
+            return
+        if not self.all_req('ip'):
+            print('Missing required parameters')     
+            exit(1)      
+
+        print('Generating CA private key and cert')
+        self.COMMANDS.gen_key_and_cert(self.DEFAULT_FILENAMES['ca_key'], self.DEFAULT_FILENAMES['ca_cert'], {'ip': self.PARAMS['ip'] + ' CA'} )
+
+        self.PARAMS['ca_key'] = self.DEFAULT_FILENAMES['ca_key']
+        self.PARAMS['ca_cert'] = self.DEFAULT_FILENAMES['ca_cert']
+
+    def gen_Server_key(self):
+        if self.some_req('keystore', 'key'):
+            return
+        if not self.all_req('ip'):
+            print('Missing required parameters')     
+            exit(1)      
+
+        print('Generating Server private key')
+        self.COMMANDS.gen_key(self.DEFAULT_FILENAMES['key'])
+
+        self.PARAMS['key'] = self.DEFAULT_FILENAMES['key']
+
+    def gen_Server_cert_signing_request(self):
+        if self.some_req('keystore', 'cert', 'sign_req'):
+            return
+        if not self.all_req('ip', 'key'):
+            print('Missing required parameters')     
+            exit(1)      
+
+        print('Generating Server certificate signing request')
+        self.COMMANDS.gen_signing_request(self.PARAMS['key'], self.DEFAULT_FILENAMES['sign_req'], {'ip': self.PARAMS['ip']})
+
+        self.PARAMS['sign_req'] = self.DEFAULT_FILENAMES['sign_req']
+
+    def gen_Server_cert(self):
+        if self.some_req('keystore', 'cert'):
+            return
+        if not self.all_req('ip', 'sign_req', 'ca_key', 'ca_cert'):
+            print('Missing required parameters')     
+            exit(1)      
+
+        print('Generating Server certificate(signed by CA)')
+        self.COMMANDS.gen_CA_signed_cert(self.PARAMS['ca_key'], self.PARAMS['ca_cert'], self.PARAMS['sign_req'], self.DEFAULT_FILENAMES['cert'])
+
+        self.PARAMS['cert'] = self.DEFAULT_FILENAMES['cert']
 
     def all_req(self, *flags):
         res = True
