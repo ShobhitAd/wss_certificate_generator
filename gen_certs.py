@@ -87,7 +87,7 @@ class CertManager():
         
     def generate(self):
         # Validate file args
-        for flag in ['key', 'cert', 'keystore', 'jks']:
+        for flag in ['key', 'cert', 'keystore', 'jks', 'ca_key', 'ca_cert', 'sign_req']:
             if flag in self.PARAMS:
                 if not os.path.exists(self.PARAMS[flag]):
                     print('%s file does not exist' % flag.upper())
