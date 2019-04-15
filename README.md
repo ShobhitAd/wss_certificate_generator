@@ -13,7 +13,8 @@ Used to generate self signed certificates which can be used by core and the java
 pip3 install pexpect
 ```
 ## How to use
-General format
+
+###General format
 > ./gen_certs.py <_host_ip_address_> [**-flag** _value_|**-flag**]
 
 1. `./gen_certs.py <host_ip_address>`  
@@ -28,4 +29,29 @@ Generates the keystore and JKS files
 4. `./gen_certs.py <host_ip_address> ... -keystore keystore.p12`  
 Generates the JKS file
 
-Run this to remove all certs, keys and keystores ``` rm -f *.pem *.key *.p12 *.jks *.csr``` 
+### Generating certificate authority(CA) to sign generated certificate
+Add CA flag
+> ./gen_certs.py <_host_ip_address_> [**-flag** _value_|**-flag**] **-CA** [**-flag** _value_|**-flag**]
+
+1. `./gen_certs.py <host_ip_address> -CA`  
+Generates the CA key, CA certificate, server key, server certificate signing request, server certificate, keystore and JKS files
+
+1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key`  
+Generates the CA certificate, server key, server certificate signing request, server certificate, keystore and JKS files
+
+1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert`  
+Generates the server key, server certificate signing request, server certificate, keystore and JKS files
+
+1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert -key privatekey.key`  
+Generates the server certificate signing request, server certificate, keystore and JKS files
+
+1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert -key privatekey.key -sign_req req.csr`  
+Generates the server certificate, keystore and JKS files
+
+1. `./gen_certs.py <host_ip_address> -CA ... -key privatekey.key -cert cert.pem`  
+Generates the keystore and JKS files
+
+1. `./gen_certs.py <host_ip_address> -CA ... -keystore keystore.p12`  
+Generates the JKS file
+
+Run this to remove all certs, keys and keystores ``` rm -f *.pem *.key *.p12 *.jks *.csr``` or `make clean`
