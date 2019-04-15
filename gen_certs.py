@@ -10,6 +10,7 @@ class CertManager():
         self.PARAMS = params
         self.KEYSTORE_PASSWORD = 'default_password'
         self.JKS_PASSWORD = 'default_password'
+        
     def generate(self):
         # Validate file args
         for flag in ['key', 'cert', 'keystore', 'jks']:
@@ -118,12 +119,16 @@ def isFlag(arg):
 
 def parseArgs():
     if len(sys.argv) < 2:
-        print("Minimum required argument: host ip address")
+        print("Minimum required argument: host ip address/hostname")
         exit(1)
 
     params = {}
     params['ip'] = sys.argv[1]
-    
+  
+    if isFlag(params['ip']):
+      print("Invalid ip value" + params['ip'])
+      exit(1)
+
     prevArg = ''
     for i in range(2, len(sys.argv)):
       arg = sys.argv[i]
@@ -136,7 +141,7 @@ def parseArgs():
           params[prevArg[1:]] = arg
         else:
           print('Not a flag: %s' % arg)
-          exit(0)
+          exit(1)
       prevArg = arg
 
     return params
