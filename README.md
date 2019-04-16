@@ -64,8 +64,8 @@ Can test the certificates and private keys for a WSS connection using the `TestW
 Set the correct configurations for the ws_settings
 ``` json
 ws_settings = {
-    "ip" : '<ip used to generate certificate>',
-    "port" : '<port number>',
+    "ip" : ...,
+    "port" : ...,
     "key_file" : '<name of privatekey file>',
     "cert_file" : '<name of PEM certificate file>',
     "cert_path" : '<Path prefix, if privatekey and certificate are in a different directory>'
@@ -76,8 +76,8 @@ ws_settings = {
 Set the correct configurations for the ws_settings
 ``` json
 ws_settings = {
-    "ip" : '<ip used to generate certificate>',
-    "port" : '<port number>',
+    "ip" : ...,
+    "port" : ...,
     "cert_file" : '<name of PEM certificate file>',
     "cert_path" : '<Path prefix, if certificate is in a different directory>'
 }
