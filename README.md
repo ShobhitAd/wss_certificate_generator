@@ -14,7 +14,7 @@ pip3 install pexpect
 ```
 ## How to use
 
-###General format
+### General format
 > ./gen_certs.py <_host_ip_address_> [**-flag** _value_|**-flag**]
 
 1. `./gen_certs.py <host_ip_address>`  
@@ -36,22 +36,49 @@ Add CA flag
 1. `./gen_certs.py <host_ip_address> -CA`  
 Generates the CA key, CA certificate, server key, server certificate signing request, server certificate, keystore and JKS files
 
-1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key`  
+2. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key`  
 Generates the CA certificate, server key, server certificate signing request, server certificate, keystore and JKS files
 
-1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert`  
+3. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert`  
 Generates the server key, server certificate signing request, server certificate, keystore and JKS files
 
-1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert -key privatekey.key`  
+4. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert -key privatekey.key`  
 Generates the server certificate signing request, server certificate, keystore and JKS files
 
-1. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert -key privatekey.key -sign_req req.csr`  
+5. `./gen_certs.py <host_ip_address> -CA -ca_key ca.key -ca_cert ca.cert -key privatekey.key -sign_req req.csr`  
 Generates the server certificate, keystore and JKS files
 
-1. `./gen_certs.py <host_ip_address> -CA ... -key privatekey.key -cert cert.pem`  
+6. `./gen_certs.py <host_ip_address> -CA ... -key privatekey.key -cert cert.pem`  
 Generates the keystore and JKS files
 
-1. `./gen_certs.py <host_ip_address> -CA ... -keystore keystore.p12`  
+7. `./gen_certs.py <host_ip_address> -CA ... -keystore keystore.p12`  
 Generates the JKS file
 
 Run this to remove all certs, keys and keystores ``` rm -f *.pem *.key *.p12 *.jks *.csr``` or `make clean`
+
+## Testing
+
+Can test the certificates and private keys for a WSS connection using the `TestWSSServer.py` and `TestWSSClient.py`
+
+1. `./TestWSSServer.py`  
+Set the correct configurations for the ws_settings
+``` json
+ws_settings = {
+    "ip" : '<ip used to generate certificate>',
+    "port" : '<port number>',
+    "key_file" : '<name of privatekey file>',
+    "cert_file" : '<name of PEM certificate file>',
+    "cert_path" : '<Path prefix, if privatekey and certificate are in a different directory>'
+}
+```
+
+2. `./TestWSSClient.py`  
+Set the correct configurations for the ws_settings
+``` json
+ws_settings = {
+    "ip" : '<ip used to generate certificate>',
+    "port" : '<port number>',
+    "cert_file" : '<name of PEM certificate file>',
+    "cert_path" : '<Path prefix, if certificate is in a different directory>'
+}
+```
