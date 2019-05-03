@@ -55,30 +55,3 @@ Generates the keystore and JKS files
 Generates the JKS file
 
 Run this to remove all certs, keys and keystores ``` rm -f *.pem *.key *.p12 *.jks *.csr``` or `make clean`
-
-## Testing
-
-Can test the certificates and private keys for a WSS connection using the `TestWSSServer.py` and `TestWSSClient.py`
-
-1. `./TestWSSServer.py`  
-Set the correct configurations for the ws_settings
-``` json
-ws_settings = {
-    "ip" : ...,
-    "port" : ...,
-    "key_file" : '<name of privatekey file>',
-    "cert_file" : '<name of PEM certificate file>',
-    "cert_path" : '<Path prefix, if privatekey and certificate are in a different directory>'
-}
-```
-
-2. `./TestWSSClient.py`  
-Set the correct configurations for the ws_settings
-``` json
-ws_settings = {
-    "ip" : ...,
-    "port" : ...,
-    "cert_file" : '<name of PEM certificate file>',
-    "cert_path" : '<Path prefix, if certificate is in a different directory>'
-}
-```
